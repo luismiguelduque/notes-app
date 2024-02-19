@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as Sentry from "@sentry/node";
 
 @Injectable()
 export class UsersService {
@@ -9,7 +10,24 @@ export class UsersService {
   }
 
   findAll() {
-    return `This action returns all users`;
+    const transaction = Sentry.startTransaction({
+      op: "test",
+      name: "My First Test Transaction",
+    });
+
+    setTimeout(() => {
+      console.log('test');
+      try {
+        // @ts-ignore
+        foo();
+      } catch (e) {
+        console.log(e);
+        Sentry.captureException(e);
+      } finally {
+        transaction.finish();
+      }
+    }, 99);
+    return `This action returns all users 2`;
   }
 
   findOne(id: number) {
